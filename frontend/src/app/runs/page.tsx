@@ -4,7 +4,14 @@ import Filters from "@/components/Filters";
 import Pagination from "@/components/Pagination";
 import RunsTable from "@/components/RunsTable";
 import { fetchRuns } from "@/lib/api";
-import { PAGE_SIZE, parseRunQuery, toSearchParams, type RawParams, type RunQuery } from "@/lib/query";
+import {
+  PAGE_SIZE,
+  buildDashboardHref,
+  parseRunQuery,
+  toSearchParams,
+  type RawParams,
+  type RunQuery,
+} from "@/lib/query";
 
 // The list depends on the URL, so it is rendered on every request.
 export const dynamic = "force-dynamic";
@@ -38,6 +45,9 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
     <>
       <h1>Runs</h1>
       <Filters query={query} />
+      <p>
+        <Link href={buildDashboardHref(query)}>See dashboard for this view →</Link>
+      </p>
       <Suspense key={key} fallback={<p className="loading">Loading runs…</p>}>
         <Results query={query} />
       </Suspense>
