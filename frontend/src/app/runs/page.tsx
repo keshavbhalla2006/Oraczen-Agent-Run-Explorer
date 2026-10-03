@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import Filters from "@/components/Filters";
 import Pagination from "@/components/Pagination";
 import RunsTable from "@/components/RunsTable";
@@ -15,7 +16,7 @@ async function Results({ query }: { query: RunQuery }) {
     return (
       <div className="empty">
         <p>No runs match these filters.</p>
-        <a href="/runs">Clear all filters</a>
+        <Link href="/runs">Clear all filters</Link>
       </div>
     );
   }

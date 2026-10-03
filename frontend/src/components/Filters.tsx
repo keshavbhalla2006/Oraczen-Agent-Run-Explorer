@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { buildRunsHref, type RunQuery } from "@/lib/query";
 import { AGENTS, SORT_FIELDS, STATUSES, TOOLS } from "@/lib/types";
@@ -15,6 +16,9 @@ export default function Filters({ query }: { query: RunQuery }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [q, setQ] = useState(query.q);
+  // The last search text we pushed into the URL. Lets us tell our own update apart from
+  // an outside change (Clear filters, back button) that the box must follow.
+  const sentQ = useRef(query.q);
 
   // The URL is the single source of truth: every control just rewrites it.
   function update(changes: Partial<RunQuery>) {
@@ -29,10 +33,21 @@ export default function Filters({ query }: { query: RunQuery }) {
     update({ [field]: next });
   }
 
+  // Follow the URL when it changed from outside this box.
+  useEffect(() => {
+    if (query.q !== sentQ.current) {
+      sentQ.current = query.q;
+      setQ(query.q);
+    }
+  }, [query.q]);
+
   // Wait 300 ms after the last keystroke so we do not refetch on every letter.
   useEffect(() => {
     if (q === query.q) return;
-    const timer = setTimeout(() => update({ q }), 300);
+    const timer = setTimeout(() => {
+      sentQ.current = q;
+      update({ q });
+    }, 300);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
@@ -88,7 +103,7 @@ export default function Filters({ query }: { query: RunQuery }) {
         {checkboxGroup("Uses tool", "tool", TOOLS)}
       </div>
       <div className="filter-actions">
-        <a href="/runs">Clear all filters</a>
+        <Link href="/runs">Clear all filters</Link>
         {isPending && <span className="muted">Updating…</span>}
       </div>
     </section>
