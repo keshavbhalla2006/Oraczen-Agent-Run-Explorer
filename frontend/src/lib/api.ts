@@ -1,5 +1,5 @@
-import { PAGE_SIZE, toSearchParams, type RunQuery } from "./query";
-import type { RunDetail, RunPage } from "./types";
+import { PAGE_SIZE, toFilterParams, toSearchParams, type RunQuery } from "./query";
+import type { RunDetail, RunPage, Stats } from "./types";
 
 // Used by server components (and, later, by the browser for the Explain button).
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -27,4 +27,15 @@ export async function fetchRun(id: string): Promise<RunDetail | null> {
 /** The browser calls this one directly, so the response can stream. */
 export function explainUrl(id: string): string {
   return `${API_URL}/api/runs/${encodeURIComponent(id)}/explain`;
+}
+
+
+/** Statistics for the runs matching the filters (all runs when there are none). */
+export async function fetchStats(query: RunQuery): Promise<Stats> {
+  const qs = toFilterParams(query).toString();
+  const res = await fetch(`${API_URL}/api/stats${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error(`The API returned ${res.status} while loading statistics.`);
+  }
+  return (await res.json()) as Stats;
 }

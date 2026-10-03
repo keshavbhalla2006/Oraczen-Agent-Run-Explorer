@@ -70,3 +70,33 @@ export interface Step {
 export interface RunDetail extends Omit<RunSummary, "step_count"> {
   steps: Step[];
 }
+
+
+// Matches the backend's /api/stats response.
+export interface AgentStats {
+  agent: string;
+  run_count: number;
+  finished_count: number;
+  success_rate: number | null;
+  total_cost_usd: number;
+  priced_runs: number;
+  unpriced_runs: number;
+}
+
+export interface DayCount {
+  date: string; // YYYY-MM-DD (UTC)
+  count: number;
+}
+
+export interface Stats {
+  run_count: number;
+  finished_count: number;
+  success_rate: number | null;
+  median_duration_ms: number | null;
+  p95_duration_ms: number | null;
+  duration_sample_size: number;
+  total_cost_usd: number;
+  unpriced_runs: number;
+  per_agent: AgentStats[];
+  runs_per_day: DayCount[];
+}

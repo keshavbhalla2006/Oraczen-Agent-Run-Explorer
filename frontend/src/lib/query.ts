@@ -88,3 +88,17 @@ export function buildRunsHref(query: RunQuery, changes: Partial<RunQuery>): stri
   const qs = toSearchParams(next).toString();
   return qs ? `/runs?${qs}` : "/runs";
 }
+
+
+/** Only the filters. Sort, order and page do not affect statistics. */
+export function toFilterParams(query: RunQuery): URLSearchParams {
+  const p = toSearchParams(query);
+  ["sort", "order", "page"].forEach((key) => p.delete(key));
+  return p;
+}
+
+/** A /dashboard link carrying the same filters as the current list. */
+export function buildDashboardHref(query: RunQuery): string {
+  const qs = toFilterParams(query).toString();
+  return qs ? `/dashboard?${qs}` : "/dashboard";
+}
