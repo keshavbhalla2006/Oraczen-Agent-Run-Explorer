@@ -3,9 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .config import DATA_PATH
+from .config import DATA_PATH, EXPLAIN_DELAY_MS, EXPLAIN_PROVIDER
+from .explain import get_provider
 from .loader import load_runs
-from .routes import runs, stats
+from .routes import explain, runs, stats
 from .store import RunStore
 
 
@@ -15,6 +16,7 @@ async def lifespan(app: FastAPI):
     report = load_runs(DATA_PATH)
     app.state.store = RunStore(report.runs)
     app.state.load_warnings = report.warnings
+    app.state.explain_provider = get_provider(EXPLAIN_PROVIDER, EXPLAIN_DELAY_MS)
     yield
 
 
@@ -29,6 +31,7 @@ app.add_middleware(
 
 app.include_router(runs.router)
 app.include_router(stats.router)
+app.include_router(explain.router)
 
 
 @app.get("/api/health")

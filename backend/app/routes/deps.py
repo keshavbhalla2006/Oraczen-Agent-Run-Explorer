@@ -26,3 +26,6 @@ def get_filters(
         started_to=started_to,
         q=q,
     )
+
+def get_explain_provider(request: Request):
+    return request.app.state.explain_provider
