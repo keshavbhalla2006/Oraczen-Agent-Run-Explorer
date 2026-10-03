@@ -48,3 +48,25 @@ export interface RunPage {
   page: number;
   page_size: number;
 }
+
+export interface Tokens {
+  input: number;
+  output: number;
+}
+
+export interface Step {
+  index: number; // 0-based position in the run
+  name: string;
+  tool: Tool;
+  status: Status;
+  started_at: string;
+  duration_ms: number | null;
+  input: string;
+  output: string | null;
+  tokens: Tokens;
+}
+
+// Matches the backend's Run: a summary plus the full steps array.
+export interface RunDetail extends Omit<RunSummary, "step_count"> {
+  steps: Step[];
+}
