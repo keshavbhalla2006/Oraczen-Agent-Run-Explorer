@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
-from ..models import RunPage, RunSummary
+from ..models import Run, RunPage, RunSummary
+
 from ..store import RunFilters, RunStore, SortField, SortOrder
 from .deps import get_filters, get_store
 
@@ -23,3 +24,10 @@ def list_runs(
         page=page,
         page_size=page_size,
     )
+
+@router.get("/runs/{run_id}", response_model=Run)
+def get_run(run_id: str, store: RunStore = Depends(get_store)) -> Run:
+    run = store.by_id.get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found")
+    return run
