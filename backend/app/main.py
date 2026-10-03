@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import DATA_PATH
 from .loader import load_runs
-from .routes import runs
+from .routes import runs, stats
 from .store import RunStore
 
 
@@ -28,6 +28,7 @@ app.add_middleware(
 )
 
 app.include_router(runs.router)
+app.include_router(stats.router)
 
 
 @app.get("/api/health")
