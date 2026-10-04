@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .config import DATA_PATH, EXPLAIN_DELAY_MS, EXPLAIN_PROVIDER
+from .config import CORS_ORIGINS, DATA_PATH, EXPLAIN_DELAY_MS, EXPLAIN_PROVIDER
 from .explain import get_provider
 from .loader import load_runs
 from .routes import explain, runs, stats
@@ -24,7 +24,7 @@ app = FastAPI(title="Agent Run Explorer API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
