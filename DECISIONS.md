@@ -57,15 +57,18 @@
 
 ## If the file had 20 million runs
 
-- Use a real database (Postgres, or ClickHouse / DuckDB for the analytics) instead of memory,
-  loaded by streaming ingestion.
+- Use a real database (MySQL, for example) instead of memory, loaded by streaming
+  ingestion rather than reading the whole file at once.
 - Index `started_at` and `(agent, status, started_at)`; keep steps in their own table and
   fetch them by run id, so the list never touches them.
-- Replace the substring scan on `prompt` with full-text or trigram search.
+- Replace the substring scan on `prompt` with a `FULLTEXT` index (`MATCH ... AGAINST`).
+  That matches whole words, not arbitrary substrings, so search behaviour would change.
 - Replace offset paging with keyset (cursor) paging on `(started_at, id)`; an exact `total`
-  becomes expensive, so it would be approximate or cached.
-- Compute `/api/stats` in SQL from pre-aggregated daily rollups, with `percentile_cont` or a
-  t-digest for p95, instead of sorting all durations on each request.
+  (`COUNT(*)`) becomes expensive, so it would be approximate or cached.
+- Compute `/api/stats` from pre-aggregated daily rollup tables. MySQL has no
+  `percentile_cont`, so p95 would use window functions (`ROW_NUMBER()` and `COUNT() OVER`)
+  or a pre-computed histogram; at this scale I would consider a column store such as
+  ClickHouse or DuckDB for the analytics instead.
 - Run explain through a queue and cache the result per run.
 
 ## What I would do with another day
@@ -90,4 +93,11 @@
 
 ## How I built this
 
-I am comfortable with languages such as Node, Express, MySQL, Java/Spring Boot for full stack assignments/projects; Python/FastAPI and the Next.js App, Router were new to me. I built this with Claude as a pair programmer, one phase at a time, (data loader, list endpoint, stats, explain, tests, then the frontend), reading each file and writing notes on it. I also broke the code on purpose (removing a filter, changing the p95 formula, removing the page reset) to confirm the tests fail when they should.
+## How I built this
+
+I am comfortable with technologies such as Node.js, Express, MySQL and Java/Spring Boot
+from earlier full-stack projects. Python/FastAPI, TypeScript and the Next.js App Router
+were new to me. I built this with Claude as a pair programmer, one phase at a time (data
+loader, list endpoint, stats, explain, tests, then the frontend), reading each file and
+writing notes on it. I also broke the code on purpose (removing a filter, changing the p95
+formula, removing the page reset) to confirm the tests fail when they should.
